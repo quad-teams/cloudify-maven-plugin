@@ -52,10 +52,10 @@ public class GCloudRunMojo extends AbstractMojo {
       InputStream origin = getClass().getResourceAsStream(name);
       File destination = new File(destinationDir, substringAfterLast(name, "/"));
 
-      String fileContent = IOUtils.toString(origin, StandardCharsets.UTF_8);
-      String artifactId = StrSubstitutor.replace(fileContent, context);
+      String content = IOUtils.toString(origin, StandardCharsets.UTF_8);
+      String substitutedContent = StrSubstitutor.replace(content, context);
 
-      FileUtils.writeStringToFile(destination, artifactId, StandardCharsets.UTF_8);
+      FileUtils.writeStringToFile(destination, substitutedContent, StandardCharsets.UTF_8);
     } catch (IOException e) {
       throw new RuntimeException(e.getMessage(), e);
     }
