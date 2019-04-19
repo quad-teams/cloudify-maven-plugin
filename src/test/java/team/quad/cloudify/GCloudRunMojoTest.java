@@ -1,4 +1,4 @@
-package team.quad.clodify;
+package team.quad.cloudify;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -7,7 +7,6 @@ import org.apache.maven.project.MavenProject;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import team.quad.cloudify.GCloudRunMojo;
 
 import java.io.File;
 import java.io.IOException;
