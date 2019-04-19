@@ -2,6 +2,7 @@ package team.quad.cloudify;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.apache.maven.plugin.AbstractMojo;
@@ -16,7 +17,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import static org.apache.commons.lang3.StringUtils.substringAfterLast;
 import static org.fusesource.jansi.Ansi.ansi;
@@ -36,8 +39,10 @@ public class GCloudRunMojo extends AbstractMojo {
         "must contains the directory where the files will be generated");
     }
 
-    Map<String, String> context = Collections
-      .singletonMap("artifactId", project.getArtifactId());
+    Map<String, String> context = new HashMap<String, String>() {{
+      put("artifactId", project.getArtifactId());
+      put("projectSuffix", RandomStringUtils.randomNumeric(10));
+    }};
 
     copyWithReplacements("/gcp/cloudbuild.yaml", context);
     copyWithReplacements("/gcp/deploy", context);
