@@ -7,7 +7,7 @@ gcloud config set run/region us-central1
 
 gcloud beta billing accounts list
 
-echo "Enter the billing account ID you want to use:"
+echo "> Enter the billing account ID you want to use:"
 
 read ACCOUNT_ID
 
