@@ -1,2 +1,26 @@
 #!/bin/bash
+gcloud projects create gcloud-run-mojo-suffix
+
+gcloud config set project gcloud-run-mojo-suffix
+
+gcloud config set run/region us-central1
+
+gcloud beta billing accounts list
+
+echo "> Enter the billing account ID you want to use:"
+
+read ACCOUNT_ID
+
+gcloud beta billing projects link gcloud-run-mojo-suffix --billing-account=$ACCOUNT_ID
+
+gcloud services enable cloudbuild.googleapis.com
+
+gcloud services enable run.googleapis.com
+
+PROJECT_NUMBER=`gcloud beta projects describe gcloud-run-mojo-suffix | grep 'projectNumber: ' | cut -d\   -f2 | tr -d \'`
+
+gcloud projects add-iam-policy-binding gcloud-run-mojo-suffix --member serviceAccount:$PROJECT_NUMBER@cloudbuild.gserviceaccount.com --role roles/run.admin
+
+gcloud projects add-iam-policy-binding gcloud-run-mojo-suffix --member serviceAccount:$PROJECT_NUMBER@cloudbuild.gserviceaccount.com --role roles/iam.serviceAccountUser
+
 gcloud builds submit --config cloudbuild.yaml .

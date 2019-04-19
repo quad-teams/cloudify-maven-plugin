@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import static org.apache.maven.shared.utils.StringUtils.unifyLineSeparators;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 class GCloudRunMojoTest {
@@ -26,6 +27,7 @@ class GCloudRunMojoTest {
     project.setArtifactId("gcloud-run-mojo");
 
     mojo = new GCloudRunMojo();
+    mojo.setProjectSuffix("suffix");
     mojo.setDestinationDir(DESTINATION_DIR);
     mojo.setProject(project);
   }
@@ -55,8 +57,8 @@ class GCloudRunMojoTest {
   }
 
   private void assertEqualFiles(String origin, String destination) throws IOException {
-    String originContent = IOUtils.toString(getClass().getResourceAsStream(origin), StandardCharsets.UTF_8);
-    String destinationContent = FileUtils.readFileToString(new File(destination), StandardCharsets.UTF_8);
+    String originContent = unifyLineSeparators(IOUtils.toString(getClass().getResourceAsStream(origin), StandardCharsets.UTF_8));
+    String destinationContent = unifyLineSeparators(FileUtils.readFileToString(new File(destination), StandardCharsets.UTF_8));
     Assertions.assertThat(originContent).isEqualTo(destinationContent);
   }
 }

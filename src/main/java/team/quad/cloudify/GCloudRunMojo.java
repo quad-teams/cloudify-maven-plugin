@@ -16,10 +16,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 import static org.apache.commons.lang3.StringUtils.substringAfterLast;
 import static org.fusesource.jansi.Ansi.ansi;
@@ -30,6 +28,9 @@ public class GCloudRunMojo extends AbstractMojo {
   @Parameter(property = "destinationDir", defaultValue = ".")
   private String destinationDir;
 
+  @Parameter(property = "projectSuffix")
+  private String projectSuffix;
+
   @Component
   private MavenProject project;
 
@@ -39,9 +40,13 @@ public class GCloudRunMojo extends AbstractMojo {
         "must contains the directory where the files will be generated");
     }
 
+    if (StringUtils.isBlank(projectSuffix)) {
+      projectSuffix = RandomStringUtils.randomNumeric(10);
+    }
+
     Map<String, String> context = new HashMap<String, String>() {{
       put("artifactId", project.getArtifactId());
-      put("projectSuffix", RandomStringUtils.randomNumeric(10));
+      put("projectSuffix", projectSuffix);
     }};
 
     copyWithReplacements("/gcp/cloudbuild.yaml", context);
@@ -49,6 +54,8 @@ public class GCloudRunMojo extends AbstractMojo {
     copyWithReplacements("/gcp/deploy.cmd", context);
     copyWithReplacements("/gcp/Dockerfile", context);
 
+    updateDockerIgnore();
+    applyFilePermissions();
     printMessage();
   }
 
@@ -66,6 +73,30 @@ public class GCloudRunMojo extends AbstractMojo {
     }
   }
 
+  private void updateDockerIgnore() {
+    File dockerIgnoreFile = new File(".", ".dockerignore");
+
+    if (dockerIgnoreFile.exists()) {
+      try {
+        String lineSeparator = System.getProperty("line.separator");
+        String lines = lineSeparator + "!src/" +
+          lineSeparator + "!pom.xml";
+
+        FileUtils.writeStringToFile(dockerIgnoreFile, lines, StandardCharsets.UTF_8, true);
+      } catch (IOException e) {
+        throw new RuntimeException(e.getMessage(), e);
+      }
+    }
+  }
+
+  private void applyFilePermissions() {
+    boolean deployExecutable = new File(".", "deploy").setExecutable(true);
+
+    if (!deployExecutable) {
+      getLog().info("Wasn't possible to give deploy execution permissions");
+    }
+  }
+
   private void printMessage() {
     getLog().info("");
     getLog().info("========================================================================");
@@ -78,6 +109,10 @@ public class GCloudRunMojo extends AbstractMojo {
 
   public void setDestinationDir(String destinationDir) {
     this.destinationDir = destinationDir;
+  }
+
+  public void setProjectSuffix(String projectSuffix) {
+    this.projectSuffix = projectSuffix;
   }
 
   public void setProject(MavenProject project) {
