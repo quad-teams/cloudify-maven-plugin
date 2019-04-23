@@ -1,26 +1,47 @@
 #!/bin/bash
-gcloud projects create gcloud-run-mojo-suffix
 
-gcloud config set project gcloud-run-mojo-suffix
+CREATE_PROJECT=false
+PROJECT_ID=gcloud-mojo
 
-gcloud config set run/region us-central1
+createProject() {
+    gcloud projects create "$PROJECT_ID"
+    gcloud config set project "$PROJECT_ID"
+    gcloud config set run/region us-central1
+    gcloud beta billing accounts list
 
-gcloud beta billing accounts list
+    # It reads the account ID
+    echo "> Enter the billing account ID you want to use:"
+    read -r ACCOUNT_ID
 
-echo "> Enter the billing account ID you want to use:"
+    gcloud beta billing projects link "$PROJECT_ID" --billing-account="$ACCOUNT_ID"
+    gcloud services enable cloudbuild.googleapis.com
+    gcloud services enable run.googleapis.com
 
-read ACCOUNT_ID
+    PROJECT_NUMBER=$(gcloud beta projects describe "$PROJECT_ID" | grep 'projectNumber: ' | cut -d\   -f2 | tr -d \')
+    gcloud projects add-iam-policy-binding "$PROJECT_ID" --member serviceAccount:"$PROJECT_NUMBER"@cloudbuild.gserviceaccount.com --role roles/run.admin
+    gcloud projects add-iam-policy-binding "$PROJECT_ID" --member serviceAccount:"$PROJECT_NUMBER"@cloudbuild.gserviceaccount.com --role roles/iam.serviceAccountUser
+    gcloud builds submit --config cloudbuild.yaml .
+}
 
-gcloud beta billing projects link gcloud-run-mojo-suffix --billing-account=$ACCOUNT_ID
+deploy() {
+    if [ "$CREATE_PROJECT" = true ] ; then
+        createProject
+    else
+        gcloud config set project "$PROJECT_ID"
+    fi
 
-gcloud services enable cloudbuild.googleapis.com
+    gcloud builds submit --config cloudbuild.yaml .
+}
 
-gcloud services enable run.googleapis.com
+printInstructions() {
+    echo "========================================================================"
+    echo -e "In order to deploy this project, you need \e[36mgcloud\e[0m set in your PATH."
+    echo -e "You can download it from \e[36;4mhttps://cloud.google.com/sdk\e[0m"
+    echo "========================================================================"
+}
 
-PROJECT_NUMBER=`gcloud beta projects describe gcloud-run-mojo-suffix | grep 'projectNumber: ' | cut -d\   -f2 | tr -d \'`
-
-gcloud projects add-iam-policy-binding gcloud-run-mojo-suffix --member serviceAccount:$PROJECT_NUMBER@cloudbuild.gserviceaccount.com --role roles/run.admin
-
-gcloud projects add-iam-policy-binding gcloud-run-mojo-suffix --member serviceAccount:$PROJECT_NUMBER@cloudbuild.gserviceaccount.com --role roles/iam.serviceAccountUser
-
-gcloud builds submit --config cloudbuild.yaml .
+if [[ $(command -v gcloud) ]]; then
+    deploy
+else
+    printInstructions
+fi

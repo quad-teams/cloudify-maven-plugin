@@ -28,6 +28,7 @@ class GCloudRunMojoTest {
     mojo = new GCloudRunMojo();
     mojo.setProjectSuffix("suffix");
     mojo.setDestinationDir(DESTINATION_DIR);
+    mojo.setProjectId("gcloud-mojo");
     mojo.setProject(project);
   }
 
