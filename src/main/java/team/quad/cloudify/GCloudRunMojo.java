@@ -34,6 +34,9 @@ public class GCloudRunMojo extends AbstractMojo {
   @Parameter(property = "projectId")
   private String projectId;
 
+  @Parameter(property = "serviceName")
+  private String serviceName;
+
   @Component
   private MavenProject project;
 
@@ -43,9 +46,11 @@ public class GCloudRunMojo extends AbstractMojo {
         "must contains the directory where the files will be generated");
     }
 
-    Map<String, String> context = new HashMap<String, String>() {{
-      put("artifactId", project.getArtifactId());
-    }};
+    Map<String, String> context = new HashMap<>();
+
+    if (StringUtils.isBlank(serviceName)) {
+      this.serviceName = project.getArtifactId();
+    }
 
     if (StringUtils.isBlank(projectSuffix)) {
       projectSuffix = RandomStringUtils.randomNumeric(10);
@@ -59,6 +64,7 @@ public class GCloudRunMojo extends AbstractMojo {
 
     context.putIfAbsent("createProject", "false");
     context.put("projectId", projectId);
+    context.put("serviceName", serviceName);
 
     copyWithReplacements("/gcp/cloudbuild.yaml", context);
     copyWithReplacements("/gcp/deploy", context);
@@ -128,6 +134,10 @@ public class GCloudRunMojo extends AbstractMojo {
 
   public void setProjectId(String projectId) {
     this.projectId = projectId;
+  }
+
+  public void setServiceName(String serviceName) {
+    this.serviceName = serviceName;
   }
 
   public void setProject(MavenProject project) {

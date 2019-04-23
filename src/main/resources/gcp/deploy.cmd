@@ -27,13 +27,18 @@ FOR /F "tokens=*" %%a in ('gcloud beta projects describe %PROJECT_ID% --format="
 CALL gcloud projects add-iam-policy-binding %PROJECT_ID% --member serviceAccount:%PROJECT_NUMBER%@cloudbuild.gserviceaccount.com --role roles/run.admin
 CALL gcloud projects add-iam-policy-binding %PROJECT_ID% --member serviceAccount:%PROJECT_NUMBER%@cloudbuild.gserviceaccount.com --role roles/iam.serviceAccountUser
 CALL gcloud builds submit --config cloudbuild.yaml .
+EXIT /B 0
+
+:deployProject
+CALL gcloud config set project %PROJECT_ID%
+CALL gcloud builds submit --config cloudbuild.yaml .
+EXIT /B 0
 
 :deploy
 IF "%CREATE_PROJECT%" == "true" (
     GOTO createProject
 ) ELSE (
-    CALL gcloud config set project %PROJECT_ID%
-    CALL gcloud builds submit --config cloudbuild.yaml .
+    GOTO deployProject
 )
 
 :printInstructions
@@ -41,6 +46,4 @@ ECHO ========================================================================
 ECHO In order to deploy this project, you need gcloud set in your PATH.
 ECHO You can download it from https://cloud.google.com/sdk
 ECHO ========================================================================
-
-@ENDLOCAL
 EXIT /B 0
