@@ -28,9 +28,8 @@ deploy() {
         createProject
     else
         gcloud config set project "$PROJECT_ID"
+        gcloud builds submit --config cloudbuild.yaml .
     fi
-
-    gcloud builds submit --config cloudbuild.yaml .
 }
 
 printInstructions() {
