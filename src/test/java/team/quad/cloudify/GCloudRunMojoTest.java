@@ -29,6 +29,7 @@ class GCloudRunMojoTest {
     mojo.setProjectSuffix("suffix");
     mojo.setDestinationDir(DESTINATION_DIR);
     mojo.setProjectId("gcloud-mojo");
+    mojo.setServiceName("mojo-service");
     mojo.setProject(project);
   }
 

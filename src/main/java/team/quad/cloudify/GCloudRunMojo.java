@@ -63,8 +63,8 @@ public class GCloudRunMojo extends AbstractMojo {
     }
 
     context.putIfAbsent("createProject", "false");
-    context.put("projectId", projectId);
-    context.put("serviceName", serviceName);
+    context.put("projectId", projectId.toLowerCase());
+    context.put("serviceName", serviceName.toLowerCase());
 
     copyWithReplacements("/gcp/cloudbuild.yaml", context);
     copyWithReplacements("/gcp/deploy", context);

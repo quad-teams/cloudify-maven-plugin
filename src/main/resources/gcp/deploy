@@ -2,33 +2,45 @@
 
 CREATE_PROJECT=${createProject}
 PROJECT_ID=${projectId}
+SERVICE_NAME=${serviceName}
 
 createProject() {
-    gcloud projects create "$PROJECT_ID"
-    gcloud config set project "$PROJECT_ID"
-    gcloud config set run/region us-central1
-    gcloud beta billing accounts list
+    echo "Setting up $PROJECT_ID"
+    gcloud projects create --no-user-output-enabled "$PROJECT_ID"
+    gcloud config set project --no-user-output-enabled "$PROJECT_ID"
+    gcloud config set run/region --no-user-output-enabled us-central1
+    gcloud beta billing accounts list --format="table['box'](displayName,name)"
 
     # It reads the account ID
     echo "> Enter the billing account ID you want to use:"
     read -r ACCOUNT_ID
 
-    gcloud beta billing projects link "$PROJECT_ID" --billing-account="$ACCOUNT_ID"
-    gcloud services enable cloudbuild.googleapis.com
-    gcloud services enable run.googleapis.com
+    echo "Enabling GCP services"
+    gcloud beta billing projects link --no-user-output-enabled "$PROJECT_ID" --billing-account="$ACCOUNT_ID"
+    gcloud services enable --no-user-output-enabled cloudbuild.googleapis.com
+    gcloud services enable --no-user-output-enabled run.googleapis.com
 
     PROJECT_NUMBER=$(gcloud beta projects describe "$PROJECT_ID" | grep 'projectNumber: ' | cut -d\   -f2 | tr -d \')
-    gcloud projects add-iam-policy-binding "$PROJECT_ID" --member serviceAccount:"$PROJECT_NUMBER"@cloudbuild.gserviceaccount.com --role roles/run.admin
-    gcloud projects add-iam-policy-binding "$PROJECT_ID" --member serviceAccount:"$PROJECT_NUMBER"@cloudbuild.gserviceaccount.com --role roles/iam.serviceAccountUser
-    gcloud builds submit --config cloudbuild.yaml .
+    gcloud projects add-iam-policy-binding --no-user-output-enabled "$PROJECT_ID" --member serviceAccount:"$PROJECT_NUMBER"@cloudbuild.gserviceaccount.com --role roles/run.admin
+    gcloud projects add-iam-policy-binding --no-user-output-enabled "$PROJECT_ID" --member serviceAccount:"$PROJECT_NUMBER"@cloudbuild.gserviceaccount.com --role roles/iam.serviceAccountUser
+
+    echo "Building $SERVICE_NAME"
+    gcloud builds submit --no-user-output-enabled --config cloudbuild.yaml .
+
+    echo "You can access your application at:"
+    gcloud.cmd beta run services describe "$SERVICE_NAME" --format="get(domain)"
 }
 
 deploy() {
     if [ "$CREATE_PROJECT" = true ] ; then
         createProject
     else
-        gcloud config set project "$PROJECT_ID"
-        gcloud builds submit --config cloudbuild.yaml .
+        echo "Building $SERVICE_NAME"
+        gcloud config set project --no-user-output-enabled "$PROJECT_ID"
+        gcloud builds submit --no-user-output-enabled --config cloudbuild.yaml .
+
+        echo "You can access your application at:"
+        gcloud.cmd beta run services describe "$SERVICE_NAME" --format="get(domain)"
     fi
 }
 
