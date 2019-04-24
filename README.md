@@ -13,7 +13,7 @@ More to come in the future.
 ## Installing / Getting started
 ### Google Cloud Run
 
-Execute the following in the root of your porject:
+Execute the following in the root of your project:
 
 ```shell
 mvn -N team.quad:cloudify-maven-plugin:0.1.0:gcloud-run
@@ -22,6 +22,18 @@ This generates the following:
 - Docker file.
 - Google Cloud Run build and deploy configuration file.
 - First-time setup scripts to make creating a Cloud Run service even simpler.
+
+Next step is to deploy to the cloud:
+
+```shell
+./deploy
+```
+
+or on Windows:
+
+```bash
+deploy.cmd
+```
 
 # Building
 
