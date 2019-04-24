@@ -2,12 +2,14 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<name>Cloudify</name>
-	<description>The fastest way to get your application to the cloud!</description>
 	<groupId>team.quad</groupId>
 	<artifactId>cloudify-maven-plugin</artifactId>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>0.1.0</version>
 	<packaging>maven-plugin</packaging>
+
+	<name>Cloudify</name>
+	<description>The fastest way to get your application to the cloud!</description>
+	<url>https://github.com/quad-teams/cloudify-maven-plugin/</url>
 
 	<licenses>
 		<license>
@@ -16,6 +18,27 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
+
+	<developers>
+		<developer>
+			<name>Uanderson Soares</name>
+			<email>uanderson@quad.team</email>
+			<organization>Quad</organization>
+			<organizationUrl>https://quad.team</organizationUrl>
+		</developer>
+		<developer>
+			<name>Christopher Leung</name>
+			<email>christopher@quad.team</email>
+			<organization>Quad</organization>
+			<organizationUrl>https://quad.team</organizationUrl>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:git://github.com/quad-teams/cloudify-maven-plugin.git</connection>
+		<developerConnection>scm:git:ssh://github.com:quad-teams/cloudify-maven-plugin.git</developerConnection>
+		<url>https://github.com/quad-teams/cloudify-maven-plugin/</url>
+	</scm>
 
 	<distributionManagement>
 		<snapshotRepository>
